@@ -1,37 +1,36 @@
 # clue-transcription
 
-RunPod Serverless worker: **Whisper large-v3** via faster-whisper (CUDA).
+RunPod Serverless worker: **Whisper large-v3** (faster-whisper).
 
-## Entry point
+## Deploy on RunPod (Docker Registry — recommended)
 
-- `handler.py` — required by RunPod GitHub indexer (`runpod.serverless.start`)
-- Dockerfile CMD: `python -u /handler.py`
+GitHub Import is unreliable (handler scanner). Use Docker instead:
 
-## Deploy
+1. Wait for GitHub Action **Build and push worker image** to finish (Actions tab).
+2. Make the package public: GitHub → Packages → `clue-transcription` → Package settings → Change visibility → Public.
+3. RunPod → Serverless → **New Endpoint** → **Import from Docker Registry** (NOT GitHub).
+4. Image:
+   ```
+   ghcr.io/zaanyk/clue-transcription:latest
+   ```
+5. Type: **Queue**, GPU 16GB+ (better 24GB), disk ≥ 20GB → Deploy.
 
-1. Repo: `https://github.com/zaanyk/clue-transcription`
-2. RunPod → Serverless → New Endpoint → GitHub → this repo / `main` / `/Dockerfile`
-3. Type: **Queue**
-4. GPU: **16GB+** (recommended 24GB). Container disk ≥ **20GB**
-5. After READY, copy Endpoint ID
-
-## Test
+## Local image (optional)
 
 ```bash
-curl -X POST "https://api.runpod.ai/v2/ENDPOINT_ID/runsync" \
-  -H "Authorization: Bearer RUNPOD_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "{\"input\":{\"audio_url\":\"https://example.com/call.mp3\",\"language\":\"uk\"}}"
+docker build --platform linux/amd64 -t ghcr.io/zaanyk/clue-transcription:latest .
+docker push ghcr.io/zaanyk/clue-transcription:latest
 ```
 
-Or send `audio_base64` instead of `audio_url`.
+## Request format
 
-## Env (optional)
+```json
+{
+  "input": {
+    "audio_url": "https://example.com/call.mp3",
+    "language": "uk"
+  }
+}
+```
 
-| Variable | Default | Notes |
-|----------|---------|--------|
-| `WHISPER_MODEL` | `large-v3` | or `large-v3-turbo` |
-| `WHISPER_DEVICE` | `cuda` | |
-| `WHISPER_COMPUTE_TYPE` | `float16` | use `int8_float16` if VRAM tight |
-
-Backend Clue wiring (RunPod client) comes after the endpoint is live.
+Or `audio_base64` instead of `audio_url`.
