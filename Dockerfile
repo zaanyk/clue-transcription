@@ -14,10 +14,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
 
-COPY handler.py /
+COPY handler.py /handler.py
+COPY rp_handler.py /rp_handler.py
+COPY whisper_engine.py /whisper_engine.py
 
-# Model downloads on first worker start (keeps GitHub Docker build under 30 min limit)
 CMD ["python", "-u", "/handler.py"]
