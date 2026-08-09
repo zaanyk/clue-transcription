@@ -6,10 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     WHISPER_MODEL=large-v3 \
     WHISPER_DEVICE=cuda \
     WHISPER_COMPUTE_TYPE=float16 \
-    HF_HOME=/models/huggingface \
-    CTRANSLATE2_ROOT=/models/ctranslate2
+    HF_HOME=/models/huggingface
 
-WORKDIR /app
+WORKDIR /
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
@@ -18,14 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Bake large-v3 into the image so cold starts don't re-download ~3GB
-RUN python - <<'PY'
-from faster_whisper import WhisperModel
-print("Downloading/caching Whisper large-v3...")
-WhisperModel("large-v3", device="cpu", compute_type="int8")
-print("Model cached OK")
-PY
+COPY handler.py /
 
-COPY rp_handler.py .
-
-CMD ["python", "-u", "rp_handler.py"]
+# Model downloads on first worker start (keeps GitHub Docker build under 30 min limit)
+CMD ["python", "-u", "/handler.py"]

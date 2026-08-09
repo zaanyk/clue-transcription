@@ -2,23 +2,18 @@
 
 RunPod Serverless worker: **Whisper large-v3** via faster-whisper (CUDA).
 
-## Quick start
+## Entry point
 
-1. Create a **private** GitHub repo named `clue-transcription`.
-2. Push this folder:
-   ```bash
-   cd clue-transcription
-   git init
-   git add .
-   git commit -m "Initial Whisper large-v3 RunPod worker"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USER/clue-transcription.git
-   git push -u origin main
-   ```
-3. In RunPod → **Serverless** → **New Endpoint** → **GitHub** as image source.
-4. Select this repo, branch `main`, Dockerfile path `./Dockerfile`.
-5. GPU: **16GB+ VRAM** (recommended 24GB). Container disk ≥ **20GB** (model baked in).
-6. After build, copy **Endpoint ID** + **API key**.
+- `handler.py` — required by RunPod GitHub indexer (`runpod.serverless.start`)
+- Dockerfile CMD: `python -u /handler.py`
+
+## Deploy
+
+1. Repo: `https://github.com/zaanyk/clue-transcription`
+2. RunPod → Serverless → New Endpoint → GitHub → this repo / `main` / `/Dockerfile`
+3. Type: **Queue**
+4. GPU: **16GB+** (recommended 24GB). Container disk ≥ **20GB**
+5. After READY, copy Endpoint ID
 
 ## Test
 
