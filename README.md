@@ -1,6 +1,6 @@
 # clue-transcription
 
-RunPod Serverless worker: **Whisper large-v3** (faster-whisper).
+RunPod Serverless worker: **Whisper large-v3-turbo** (faster-whisper), tuned for speed.
 
 ## Deploy on RunPod (Docker Registry — recommended)
 
@@ -14,6 +14,18 @@ GitHub Import is unreliable (handler scanner). Use Docker instead:
    ghcr.io/zaanyk/clue-transcription:latest
    ```
 5. Type: **Queue**, GPU 16GB+ (better 24GB), disk ≥ 20GB → Deploy.
+6. For stable latency set **Min workers = 1** (avoids cold start).
+
+## Speed defaults
+
+| Setting | Default |
+|--------|---------|
+| Model | `large-v3-turbo` |
+| Beam size | `1` |
+| VAD | on (skips silence) |
+| `condition_on_previous_text` | `false` |
+
+Override via job `input` or container env: `WHISPER_MODEL`, `WHISPER_BEAM_SIZE`, `WHISPER_COMPUTE_TYPE`.
 
 ## Local image (optional)
 
@@ -28,9 +40,11 @@ docker push ghcr.io/zaanyk/clue-transcription:latest
 {
   "input": {
     "audio_url": "https://example.com/call.mp3",
-    "language": "uk"
+    "language": "uk",
+    "model": "large-v3-turbo",
+    "beam_size": 1
   }
 }
 ```
 
-Or `audio_base64` instead of `audio_url`.
+Or `audio_base64` instead of `audio_url`. For quality-first runs, pass `"model": "large-v3"` and `"beam_size": 5`.

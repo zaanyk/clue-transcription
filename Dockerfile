@@ -1,11 +1,12 @@
-# Lean CUDA image for RunPod Serverless + faster-whisper large-v3
+# Lean CUDA image for RunPod Serverless + faster-whisper large-v3-turbo
 FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
-    WHISPER_MODEL=large-v3 \
+    WHISPER_MODEL=large-v3-turbo \
     WHISPER_DEVICE=cuda \
     WHISPER_COMPUTE_TYPE=float16 \
+    WHISPER_BEAM_SIZE=1 \
     HF_HOME=/models/huggingface \
     PIP_NO_CACHE_DIR=1
 
